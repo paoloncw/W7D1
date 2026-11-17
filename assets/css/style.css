@@ -1,0 +1,104 @@
+/* Mini-libreria — Settimana VII Giorno I
+   Stile minimal: il focus è sulla logica JS, non sul layout. */
+
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  background: #f7f7f7;
+  color: #1a1a1a;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.site-header {
+  background: hsl(220, 50%, 25%);
+  color: white;
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.site-header h1 { margin: 0 0 8px; }
+.site-header p  { margin: 0; opacity: 0.85; }
+
+
+/* Aggiungi qui le tue regole per form, lista libri, bottoni, ecc. */
+
+.form-section,
+.lista-section {
+  background: white;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.campo label { font-weight: 600; margin-bottom: 4px; }
+
+.campo input,
+.campo select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.campo[hidden] { display: none; }
+
+.btn-primary,
+.azioni button {
+  background: hsl(220, 50%, 25%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 14px;
+  font: inherit;
+  cursor: pointer;
+}
+
+#lista-libri {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#lista-libri li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.titolo { font-weight: 600; }
+
+.badge {
+  margin: 0 8px;
+  padding: 2px 8px;
+  background: hsl(220, 60%, 92%);
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+
+.meta { color: #666; font-size: 0.9rem; }
+
+li.letto { opacity: 0.6; }
+li.letto .titolo { text-decoration: line-through; }
+
+.azioni { display: flex; gap: 8px; align-items: center; }
+
+.azioni button[data-azione="rimuovi"] { background: hsl(0, 55%, 45%); }

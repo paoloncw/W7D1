@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini-libreria — Settimana VII Giorno I</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+
+  <header class="site-header">
+    <h1>La mia libreria</h1>
+    <p>Aggiungi i tuoi libri e segnali come letti.</p>
+  </header>
+
+  <main class="container">
+
+    <section class="form-section">
+      <h2>Aggiungi un libro</h2>
+      <form id="aggiungi-libro" class="form">
+
+        <div class="campo">
+          <label for="titolo">Titolo</label>
+          <input type="text" id="titolo" name="titolo">
+        </div>
+
+        <div class="campo">
+          <label for="autore">Autore</label>
+          <input type="text" id="autore" name="autore">
+        </div>
+
+        <div class="campo">
+          <label for="anno">Anno</label>
+          <input type="number" id="anno" name="anno">
+        </div>
+
+        <div class="campo">
+          <label for="formato">Formato</label>
+          <select id="formato" name="formato">
+            <option value="cartaceo">cartaceo</option>
+            <option value="digitale">digitale</option>
+            <option value="audio">audio</option>
+          </select>
+        </div>
+
+        <div class="campo campo-condizionale" id="campo-dimensione" hidden>
+          <label for="dimensione">Dimensione MB</label>
+          <input type="number" step="0.1" id="dimensione" name="dimensione">
+        </div>
+
+        <div class="campo campo-condizionale" id="campo-durata" hidden>
+          <label for="durata">Durata (minuti)</label>
+          <input type="number" id="durata" name="durata">
+        </div>
+
+        <button type="submit" class="btn-primary">Aggiungi</button>
+
+      </form>
+    </section>
+
+    <section class="lista-section">
+      <h2>I tuoi libri <span id="contatore">0</span></h2>
+      <ul id="lista-libri">
+        <!-- popolato da JavaScript -->
+      </ul>
+    </section>
+
+  </main>
+
+  <script src="assets/js/script.js"></script>
+</body>
+
+</html>
