@@ -26,6 +26,10 @@ class Libro {
         return "cartaceo";
     }
 
+    static fromJSON(d) {
+        return Object.assign(new this(d.titolo, d.autore, d.anno), d);
+    }
+
     /*-------------------- EXTRA 17: static daStringa --------------------*/
     static daStringa(s) {
         const [titolo, autore, anno] = s.split("|");
@@ -54,20 +58,47 @@ class LibroAudio extends Libro {
         return `audio (${this.durataMinuti} min)`;
     }
 }
-/*-------------------- FINE EXTRA 15 --------------------*/
+/*-------- FINE EXTRA 15 ----------*/
+
+const STORAGE_KEY = "libri";
 
 // === Stato (array di libri) ===
 
-/*-------------------- EXTRA 16: let al posto di const (per riassegnare con filter) --------------------*/
-let libri = [];
-/*-------------------- FINE EXTRA 16 --------------------*/
+/*----- EXTRA 16: let al posto di const (per riassegnare con filter) ---------*/
 
+let libri = caricaLibri();
+/*------- FINE EXTRA 16 ----------*/
+
+/*-------------------- EXTRA W7D2-17: filtro letti / da leggere --------------------*/
+let filtroAttivo = "tutti";
+/*-------------------- FINE EXTRA W7D2-17 --------------------*/
+
+function salvaLibri() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(libri));
+}
+
+function caricaLibri() {
+    const dati = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
+    return dati.map(d => {
+        if (d.dimensioneMb !== undefined) return LibroDigitale.fromJSON(d);
+        if (d.durataMinuti !== undefined) return LibroAudio.fromJSON(d);
+        return Libro.fromJSON(d);
+    });
+}
 
 // === Render ===
 
 function renderLibri() {
 
-    const righe = libri.map(libro => {
+    /*-------------------- EXTRA W7D2-17: filtro --------------------*/
+    const visibili = libri.filter(l => {
+        if (filtroAttivo === "letti") return l.letto;
+        if (filtroAttivo === "da-leggere") return !l.letto;
+        return true;
+    });
+    /*-------------------- FINE EXTRA W7D2-17 --------------------*/
+
+    const righe = visibili.map(libro => {
         const li = document.createElement("li");
         if (libro.letto) li.classList.add("letto");
         li.dataset.id = libro.id;
@@ -147,14 +178,15 @@ form.addEventListener("submit", (e) => {
     if (dati.formato === "digitale") {
         nuovo = new LibroDigitale(dati.titolo, dati.autore, Number(dati.anno), Number(dati.dimensione));
 
-    /*-------------------- EXTRA 15: caso audio --------------------*/
+        /*-------------------- EXTRA 15: caso audio --------------------*/
     } else if (dati.formato === "audio") {
         nuovo = new LibroAudio(dati.titolo, dati.autore, Number(dati.anno), Number(dati.durata));
-    /*-------------------- FINE EXTRA 15 --------------------*/
+        /*-------------------- FINE EXTRA 15 --------------------*/
     } else {
         nuovo = new Libro(dati.titolo, dati.autore, Number(dati.anno));
     }
     libri.push(nuovo);
+    salvaLibri();
     renderLibri();
     e.target.reset();
     divCampo.hidden = true;
@@ -182,8 +214,48 @@ listaLibri.addEventListener("click", (e) => {
     }
     /*-------------------- FINE EXTRA 16 --------------------*/
 
+    salvaLibri();
     renderLibri();
 });
+
+document.getElementById("svuota-tutto").addEventListener("click", () => {
+    libri = [];
+    localStorage.removeItem(STORAGE_KEY);
+    renderLibri();
+});
+
+/*-------------------- EXTRA W7D2-16: esporta JSON --------------------*/
+document.getElementById("esporta").addEventListener("click", () => {
+    window.open("data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(libri, null, 2)));
+});
+/*-------------------- FINE EXTRA W7D2-16 --------------------*/
+
+/*-------------------- EXTRA W7D2-17: bottoni filtro --------------------*/
+document.getElementById("filtri").addEventListener("click", (e) => {
+    const bottone = e.target.closest("button[data-filtro]");
+    if (!bottone) return;
+
+    filtroAttivo = bottone.dataset.filtro;
+    document.querySelectorAll("#filtri button").forEach(b => {
+        b.classList.toggle("attivo", b === bottone);
+    });
+    renderLibri();
+});
+/*-------------------- FINE EXTRA W7D2-17 --------------------*/
+
+/*-------------------- EXTRA W7D2-18: ordinamento --------------------*/
+document.getElementById("ordina").addEventListener("change", (e) => {
+    if (e.target.value === "titolo") {
+        libri.sort((a, b) => a.titolo.localeCompare(b.titolo));
+    } else if (e.target.value === "anno") {
+        libri.sort((a, b) => a.anno - b.anno);
+    }
+    salvaLibri();
+    renderLibri();
+});
+/*-------------------- FINE EXTRA W7D2-18 --------------------*/
+
+renderLibri();
 
 /*-------------------- EXTRA 17: prova di Libro.daStringa --------------------*/
 console.log(Libro.daStringa("1984|Orwell|1949"));

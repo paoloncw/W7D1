@@ -61,7 +61,26 @@
     </section>
 
     <section class="lista-section">
-      <h2>I tuoi libri <span id="contatore">0</span></h2>
+      <div class="lista-header">
+        <h2>I tuoi libri <span id="contatore">0</span></h2>
+        <button id="svuota-tutto" class="btn-svuota">Svuota tutto</button>
+      </div>
+      <p class="info-storage">I libri sono salvati nel browser e sopravvivono al refresh.</p>
+
+      <div class="strumenti">
+        <div id="filtri" class="filtri">
+          <button type="button" data-filtro="tutti" class="attivo">Tutti</button>
+          <button type="button" data-filtro="letti">Letti</button>
+          <button type="button" data-filtro="da-leggere">Da leggere</button>
+        </div>
+        <select id="ordina" aria-label="Ordina per">
+          <option value="" selected disabled>Ordina per...</option>
+          <option value="titolo">Titolo</option>
+          <option value="anno">Anno</option>
+        </select>
+        <button type="button" id="esporta" class="btn-esporta">Esporta</button>
+      </div>
+
       <ul id="lista-libri">
         <!-- popolato da JavaScript -->
       </ul>

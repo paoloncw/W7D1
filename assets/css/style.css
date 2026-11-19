@@ -102,3 +102,60 @@ li.letto .titolo { text-decoration: line-through; }
 .azioni { display: flex; gap: 8px; align-items: center; }
 
 .azioni button[data-azione="rimuovi"] { background: hsl(0, 55%, 45%); }
+
+.lista-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-svuota {
+  background: white;
+  color: hsl(0, 55%, 45%);
+  border: 1px solid hsl(0, 55%, 45%);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.info-storage {
+  margin: 0 0 12px;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.strumenti {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.filtri { display: flex; gap: 6px; }
+
+.filtri button,
+.btn-esporta {
+  background: white;
+  color: hsl(220, 50%, 25%);
+  border: 1px solid hsl(220, 50%, 25%);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.filtri button.attivo {
+  background: hsl(220, 50%, 25%);
+  color: white;
+}
+
+#ordina {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font: inherit;
+}
