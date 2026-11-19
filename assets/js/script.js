@@ -1,16 +1,3 @@
-// Mini-libreria — Settimana VII Giorno I
-//
-// Devi fare 4 cose:
-// 1. Definire una classe Libro (titolo, autore, anno, letto)
-// 2. Definire una classe LibroDigitale che estende Libro (aggiunge formato, dimensioneMb)
-// 3. Aggiungere un listener al form che crea una nuova istanza e la aggiunge all'array
-// 4. Renderizzare la lista nel <ul id="lista-libri"> via innerHTML
-//
-// Bonus: bottone "Segna come letto" su ogni elemento, gestito con event delegation.
-
-
-// === Classi ===
-
 class Libro {
     letto = false;
     constructor(titolo, autore, anno) {
@@ -30,12 +17,10 @@ class Libro {
         return Object.assign(new this(d.titolo, d.autore, d.anno), d);
     }
 
-    /*-------------------- EXTRA 17: static daStringa --------------------*/
     static daStringa(s) {
         const [titolo, autore, anno] = s.split("|");
         return new Libro(titolo, autore, Number(anno));
     }
-    /*-------------------- FINE EXTRA 17 --------------------*/
 }
 
 class LibroDigitale extends Libro {
@@ -48,7 +33,6 @@ class LibroDigitale extends Libro {
     }
 }
 
-/*-------------------- EXTRA 15: classe LibroAudio --------------------*/
 class LibroAudio extends Libro {
     constructor(titolo, autore, anno, durataMinuti) {
         super(titolo, autore, anno);
@@ -58,20 +42,12 @@ class LibroAudio extends Libro {
         return `audio (${this.durataMinuti} min)`;
     }
 }
-/*-------- FINE EXTRA 15 ----------*/
 
 const STORAGE_KEY = "libri";
 
-// === Stato (array di libri) ===
-
-/*----- EXTRA 16: let al posto di const (per riassegnare con filter) ---------*/
-
 let libri = caricaLibri();
-/*------- FINE EXTRA 16 ----------*/
 
-/*-------------------- EXTRA W7D2-17: filtro letti / da leggere --------------------*/
 let filtroAttivo = "tutti";
-/*-------------------- FINE EXTRA W7D2-17 --------------------*/
 
 function salvaLibri() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(libri));
@@ -86,17 +62,12 @@ function caricaLibri() {
     });
 }
 
-// === Render ===
-
 function renderLibri() {
-
-    /*-------------------- EXTRA W7D2-17: filtro --------------------*/
     const visibili = libri.filter(l => {
         if (filtroAttivo === "letti") return l.letto;
         if (filtroAttivo === "da-leggere") return !l.letto;
         return true;
     });
-    /*-------------------- FINE EXTRA W7D2-17 --------------------*/
 
     const righe = visibili.map(libro => {
         const li = document.createElement("li");
@@ -135,12 +106,10 @@ function renderLibri() {
             azioni.appendChild(button);
         }
 
-        /*-------------------- EXTRA 16: bottone Rimuovi --------------------*/
         const bottoneRimuovi = document.createElement("button");
         bottoneRimuovi.textContent = "Rimuovi";
         bottoneRimuovi.dataset.azione = "rimuovi";
         azioni.appendChild(bottoneRimuovi);
-        /*-------------------- FINE EXTRA 16 --------------------*/
 
         li.appendChild(azioni);
 
@@ -152,20 +121,15 @@ function renderLibri() {
     document.getElementById("contatore").textContent = libri.length;
 }
 
-// === Eventi ===
-
 const selectFormato = document.getElementById("formato");
 const divCampo = document.getElementById("campo-dimensione");
 
-/*-------------------- EXTRA 15: campo durata per l'audio --------------------*/
 const divDurata = document.getElementById("campo-durata");
-/*-------------------- FINE EXTRA 15 --------------------*/
 
 selectFormato.addEventListener("change", (e) => {
     divCampo.hidden = e.target.value !== "digitale";
-    /*-------------------- EXTRA 15 --------------------*/
+
     divDurata.hidden = e.target.value !== "audio";
-    /*-------------------- FINE EXTRA 15 --------------------*/
 });
 
 const form = document.getElementById("aggiungi-libro");
@@ -177,11 +141,8 @@ form.addEventListener("submit", (e) => {
     let nuovo;
     if (dati.formato === "digitale") {
         nuovo = new LibroDigitale(dati.titolo, dati.autore, Number(dati.anno), Number(dati.dimensione));
-
-        /*-------------------- EXTRA 15: caso audio --------------------*/
     } else if (dati.formato === "audio") {
         nuovo = new LibroAudio(dati.titolo, dati.autore, Number(dati.anno), Number(dati.durata));
-        /*-------------------- FINE EXTRA 15 --------------------*/
     } else {
         nuovo = new Libro(dati.titolo, dati.autore, Number(dati.anno));
     }
@@ -190,9 +151,8 @@ form.addEventListener("submit", (e) => {
     renderLibri();
     e.target.reset();
     divCampo.hidden = true;
-    /*-------------------- EXTRA 15 --------------------*/
+
     divDurata.hidden = true;
-    /*-------------------- FINE EXTRA 15 --------------------*/
 });
 
 const listaLibri = document.getElementById("lista-libri");
@@ -208,11 +168,9 @@ listaLibri.addEventListener("click", (e) => {
         libro.segnaComeLetto();
     }
 
-    /*-------------------- EXTRA 16: azione rimuovi con filter --------------------*/
     if (bottone.dataset.azione === "rimuovi") {
         libri = libri.filter(l => l.id !== id);
     }
-    /*-------------------- FINE EXTRA 16 --------------------*/
 
     salvaLibri();
     renderLibri();
@@ -224,13 +182,10 @@ document.getElementById("svuota-tutto").addEventListener("click", () => {
     renderLibri();
 });
 
-/*-------------------- EXTRA W7D2-16: esporta JSON --------------------*/
 document.getElementById("esporta").addEventListener("click", () => {
     window.open("data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(libri, null, 2)));
 });
-/*-------------------- FINE EXTRA W7D2-16 --------------------*/
 
-/*-------------------- EXTRA W7D2-17: bottoni filtro --------------------*/
 document.getElementById("filtri").addEventListener("click", (e) => {
     const bottone = e.target.closest("button[data-filtro]");
     if (!bottone) return;
@@ -241,9 +196,7 @@ document.getElementById("filtri").addEventListener("click", (e) => {
     });
     renderLibri();
 });
-/*-------------------- FINE EXTRA W7D2-17 --------------------*/
 
-/*-------------------- EXTRA W7D2-18: ordinamento --------------------*/
 document.getElementById("ordina").addEventListener("change", (e) => {
     if (e.target.value === "titolo") {
         libri.sort((a, b) => a.titolo.localeCompare(b.titolo));
@@ -253,10 +206,160 @@ document.getElementById("ordina").addEventListener("change", (e) => {
     salvaLibri();
     renderLibri();
 });
-/*-------------------- FINE EXTRA W7D2-18 --------------------*/
+
+const inputCerca = document.getElementById("cerca");
+const spinner = document.getElementById("spinner");
+const boxErrore = document.getElementById("errore");
+const listaRisultati = document.getElementById("risultati");
+
+function mostraSpinner() {
+    spinner.hidden = false;
+    boxErrore.hidden = true;
+}
+
+function nascondiSpinner() {
+    spinner.hidden = true;
+}
+
+function mostraErrore(msg) {
+    boxErrore.textContent = msg;
+    boxErrore.hidden = false;
+}
+
+let controller;
+let timeoutId;
+
+function cerca(query) {
+    controller?.abort();
+    controller = new AbortController();
+    const { signal } = controller;
+    mostraSpinner();
+
+    const url = new URL("https://openlibrary.org/search.json");
+    url.searchParams.set("q", query);
+    url.searchParams.set("limit", 10);
+
+    fetch(url, { signal })
+        .then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+        })
+        .then(dati => renderRisultati(dati.docs))
+        .catch(err => {
+            if (err.name === "AbortError") return;
+            mostraErrore("Ricerca non riuscita: " + err.message);
+        })
+        .finally(() => {
+            if (!signal.aborted) nascondiSpinner();
+        });
+}
+
+function renderRisultati(docs) {
+    const conAutore = docs.filter(d => d.author_name);
+
+    if (conAutore.length === 0) {
+        const li = document.createElement("li");
+        li.textContent = "Nessun risultato.";
+        listaRisultati.replaceChildren(li);
+        return;
+    }
+
+    const righe = conAutore.map(d => {
+        const autore = d.author_name?.[0] ?? "Autore sconosciuto";
+        const anno = d.first_publish_year ?? "?";
+
+        const li = document.createElement("li");
+
+        const info = document.createElement("div");
+        info.className = "info";
+
+        const spanTitolo = document.createElement("span");
+        spanTitolo.className = "titolo";
+        spanTitolo.textContent = d.title;
+        info.appendChild(spanTitolo);
+
+        const spanMeta = document.createElement("span");
+        spanMeta.className = "meta";
+        spanMeta.textContent = autore + " - " + anno;
+        info.appendChild(spanMeta);
+
+        li.appendChild(info);
+
+        const bottoni = document.createElement("div");
+        bottoni.className = "bottoni";
+
+        const bottone = document.createElement("button");
+        bottone.textContent = "Aggiungi";
+        bottone.dataset.titolo = d.title;
+        bottone.dataset.autore = autore;
+        bottone.dataset.anno = anno;
+        bottoni.appendChild(bottone);
+
+        const bottoneDettagli = document.createElement("button");
+        bottoneDettagli.textContent = "Dettagli";
+        bottoneDettagli.dataset.key = d.key;
+        bottoni.appendChild(bottoneDettagli);
+
+        li.appendChild(bottoni);
+
+        return li;
+    });
+
+    listaRisultati.replaceChildren(...righe);
+}
+
+inputCerca.addEventListener("input", (e) => {
+    const query = e.target.value.trim();
+
+    localStorage.setItem("ultimaQuery", query);
+
+    clearTimeout(timeoutId);
+
+    if (query.length < 3) {
+        controller?.abort();
+        nascondiSpinner();
+        listaRisultati.innerHTML = "";
+        return;
+    }
+
+    timeoutId = setTimeout(() => cerca(query), 400);
+});
+
+listaRisultati.addEventListener("click", (e) => {
+    const bottoneDettagli = e.target.closest("button[data-key]");
+    if (bottoneDettagli) {
+        fetch(`https://openlibrary.org${bottoneDettagli.dataset.key}.json`)
+            .then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                return r.json();
+            })
+            .then(d => {
+                const desc = typeof d.description === "string" ? d.description : d.description?.value;
+                alert(desc ?? "nessuna descrizione");
+            })
+            .catch(err => mostraErrore("Dettagli non disponibili: " + err.message));
+        return;
+    }
+
+    const bottone = e.target.closest("button[data-titolo]");
+    if (!bottone) return;
+
+    const { titolo, autore, anno } = bottone.dataset;
+    libri.push(new Libro(titolo, autore, Number(anno) || 0));
+    salvaLibri();
+    renderLibri();
+
+    bottone.textContent = "✓ Aggiunto";
+    bottone.disabled = true;
+});
+
+const querySalvata = localStorage.getItem("ultimaQuery");
+if (querySalvata) {
+    inputCerca.value = querySalvata;
+    if (querySalvata.length >= 3) cerca(querySalvata);
+}
 
 renderLibri();
 
-/*-------------------- EXTRA 17: prova di Libro.daStringa --------------------*/
 console.log(Libro.daStringa("1984|Orwell|1949"));
-/*-------------------- FINE EXTRA 17 --------------------*/
+

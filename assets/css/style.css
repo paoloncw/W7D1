@@ -1,7 +1,3 @@
-/* Mini-libreria — Settimana VII Giorno I
-   Stile minimal: il focus è sulla logica JS, non sul layout. */
-
-
 * { box-sizing: border-box; }
 
 body {
@@ -29,9 +25,7 @@ body {
 .site-header h1 { margin: 0 0 8px; }
 .site-header p  { margin: 0; opacity: 0.85; }
 
-
-/* Aggiungi qui le tue regole per form, lista libri, bottoni, ecc. */
-
+.cerca-section,
 .form-section,
 .lista-section {
   background: white;
@@ -158,4 +152,76 @@ li.letto .titolo { text-decoration: line-through; }
   border: 1px solid #ccc;
   border-radius: 4px;
   font: inherit;
+}
+
+.spinner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.spinner[hidden] { display: none; }
+
+.spinner::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border: 3px solid #ddd;
+  border-top-color: hsl(220, 50%, 25%);
+  border-radius: 50%;
+  animation: gira 0.8s linear infinite;
+}
+
+@keyframes gira {
+  to { transform: rotate(360deg); }
+}
+
+.alert {
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.alert[hidden] { display: none; }
+
+.alert-danger {
+  background: hsl(0, 70%, 93%);
+  color: hsl(0, 55%, 35%);
+  border: 1px solid hsl(0, 55%, 75%);
+}
+
+.risultati {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.risultati li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.risultati .info { display: flex; flex-direction: column; }
+
+.risultati .bottoni { display: flex; gap: 8px; }
+
+.risultati button {
+  background: hsl(220, 50%, 25%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 14px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.risultati button:disabled {
+  background: #999;
+  cursor: default;
 }

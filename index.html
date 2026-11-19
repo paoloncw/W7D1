@@ -17,6 +17,17 @@
 
   <main class="container">
 
+    <section class="cerca-section">
+      <h2>Cerca</h2>
+      <div class="campo">
+        <label for="cerca">Cerca un libro</label>
+        <input type="text" id="cerca" placeholder="es. harari, tolkien...">
+      </div>
+      <div id="spinner" class="spinner" hidden>Caricamento in corso...</div>
+      <div id="errore" class="alert alert-danger" hidden></div>
+      <ul id="risultati" class="risultati"></ul>
+    </section>
+
     <section class="form-section">
       <h2>Aggiungi un libro</h2>
       <form id="aggiungi-libro" class="form">
@@ -82,7 +93,7 @@
       </div>
 
       <ul id="lista-libri">
-        <!-- popolato da JavaScript -->
+
       </ul>
     </section>
 
