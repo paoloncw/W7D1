@@ -229,7 +229,13 @@ function mostraErrore(msg) {
 let controller;
 let timeoutId;
 
-function cerca(query) {
+async function getJSON(url, opzioni) {
+    const r = await fetch(url, opzioni);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+}
+
+async function cerca(query) {
     controller?.abort();
     controller = new AbortController();
     const { signal } = controller;
@@ -239,19 +245,16 @@ function cerca(query) {
     url.searchParams.set("q", query);
     url.searchParams.set("limit", 10);
 
-    fetch(url, { signal })
-        .then(r => {
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            return r.json();
-        })
-        .then(dati => renderRisultati(dati.docs))
-        .catch(err => {
-            if (err.name === "AbortError") return;
+    try {
+        const dati = await getJSON(url, { signal });
+        renderRisultati(dati.docs);
+    } catch (err) {
+        if (err.name !== "AbortError") {
             mostraErrore("Ricerca non riuscita: " + err.message);
-        })
-        .finally(() => {
-            if (!signal.aborted) nascondiSpinner();
-        });
+        }
+    } finally {
+        if (!signal.aborted) nascondiSpinner();
+    }
 }
 
 function renderRisultati(docs) {
@@ -325,19 +328,16 @@ inputCerca.addEventListener("input", (e) => {
     timeoutId = setTimeout(() => cerca(query), 400);
 });
 
-listaRisultati.addEventListener("click", (e) => {
+listaRisultati.addEventListener("click", async (e) => {
     const bottoneDettagli = e.target.closest("button[data-key]");
     if (bottoneDettagli) {
-        fetch(`https://openlibrary.org${bottoneDettagli.dataset.key}.json`)
-            .then(r => {
-                if (!r.ok) throw new Error(`HTTP ${r.status}`);
-                return r.json();
-            })
-            .then(d => {
-                const desc = typeof d.description === "string" ? d.description : d.description?.value;
-                alert(desc ?? "nessuna descrizione");
-            })
-            .catch(err => mostraErrore("Dettagli non disponibili: " + err.message));
+        try {
+            const d = await getJSON(`https://openlibrary.org${bottoneDettagli.dataset.key}.json`);
+            const desc = typeof d.description === "string" ? d.description : d.description?.value;
+            alert(desc ?? "nessuna descrizione");
+        } catch (err) {
+            mostraErrore("Dettagli non disponibili: " + err.message);
+        }
         return;
     }
 
@@ -359,7 +359,143 @@ if (querySalvata) {
     if (querySalvata.length >= 3) cerca(querySalvata);
 }
 
-renderLibri();
+function getToken() {
+    return localStorage.getItem("auth.token");
+}
+
+function getUtente() {
+    return JSON.parse(localStorage.getItem("auth.user") ?? "null");
+}
+
+function logout() {
+    localStorage.removeItem("auth.token");
+    localStorage.removeItem("auth.user");
+    document.getElementById("profilo-section").hidden = true;
+}
+
+async function login(username, password) {
+    const r = await fetch("https://dummyjson.com/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+    });
+    if (!r.ok) throw new Error("Credenziali non valide");
+
+    const dati = await r.json();
+    localStorage.setItem("auth.token", dati.accessToken);
+    localStorage.setItem("auth.user", JSON.stringify(dati));
+    return dati;
+}
+
+async function caricaProfilo() {
+    const token = getToken();
+    if (!token) return null;
+
+    const r = await fetch("https://dummyjson.com/auth/me", {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    if (r.status === 401) {
+        logout();
+        renderAuthBox();
+        throw new Error("Sessione scaduta");
+    }
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+}
+
+function renderAuthBox() {
+    const box = document.getElementById("auth-box");
+    const utente = getUtente();
+
+    if (utente) {
+        const saluto = document.createElement("span");
+        saluto.className = "saluto";
+        saluto.textContent = `Ciao ${utente.firstName}`;
+
+        const esci = document.createElement("button");
+        esci.textContent = "Esci";
+        esci.addEventListener("click", () => {
+            logout();
+            renderAuthBox();
+        });
+
+        box.replaceChildren(saluto, esci);
+        return;
+    }
+
+    box.innerHTML = `
+        <form id="form-login">
+            <input type="text" name="username" value="emilys" aria-label="Username">
+            <input type="password" name="password" value="emilyspass" aria-label="Password">
+            <button type="submit">Accedi</button>
+        </form>`;
+    document.getElementById("form-login").addEventListener("submit", gestisciLogin);
+}
+
+async function gestisciLogin(e) {
+    e.preventDefault();
+    const { username, password } = Object.fromEntries(new FormData(e.target));
+
+    try {
+        await login(username, password);
+        renderAuthBox();
+        await mostraProfilo();
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+async function mostraProfilo() {
+    if (!getToken()) return;
+
+    try {
+        const profilo = await caricaProfilo();
+
+        const img = document.createElement("img");
+        img.src = profilo.image;
+        img.alt = profilo.firstName;
+
+        const info = document.createElement("div");
+        info.className = "info";
+
+        const nome = document.createElement("strong");
+        nome.textContent = `${profilo.firstName} ${profilo.lastName}`;
+
+        const username = document.createElement("span");
+        username.textContent = `@${profilo.username}`;
+
+        const email = document.createElement("span");
+        email.textContent = profilo.email;
+
+        info.append(nome, username, email);
+
+        document.getElementById("profilo").replaceChildren(img, info);
+        document.getElementById("profilo-section").hidden = false;
+    } catch (err) {
+        mostraErrore(err.message);
+    }
+}
+
+/*---- EXTRA 19 ----*/
+async function confrontaTempi() {
+    console.time("sequenziale");
+    await caricaProfilo();
+    await cerca("harari");
+    console.timeEnd("sequenziale");
+
+    console.time("parallelo");
+    await Promise.all([caricaProfilo(), cerca("harari")]);
+    console.timeEnd("parallelo");
+}
+/*---- FINE EXTRA 19 ----*/
+
+async function avvio() {
+    renderLibri();
+    renderAuthBox();
+    await mostraProfilo();
+}
+
+avvio();
 
 console.log(Libro.daStringa("1984|Orwell|1949"));
 
